@@ -393,7 +393,7 @@ function clients() {
                 const label = w.configured ? (w.processRunning ? '✓ live' : '✓ config') : '✗ missing';
                 return `<td><span class="wiring-pill ${cls}">${label}</span></td>`;
               }).join('')}
-              <td style="color:var(--muted);font-size:11px;font-family:var(--mono)">${c.configPath ? '~/' + c.configPath.replace(process?.env?.HOME || '/Users/', '') : '—'}</td>
+              <td style="color:var(--muted);font-size:11px;font-family:var(--mono)">${c.configPath ? c.configPath.replace(/^\/Users\/[^/]+\//, '~/').replace(/^\/home\/[^/]+\//, '~/') : '—'}</td>
             </tr>
           `).join('')}
         </tbody>
