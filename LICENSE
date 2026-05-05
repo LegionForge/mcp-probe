@@ -1,0 +1,43 @@
+MIT License with Usage Restriction
+
+Copyright (c) 2026 JP Cruz <jp@legionforge.org>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+WITHOUT LIMITING THE FOREGOING, THE GRANT OF RIGHTS ABOVE DOES NOT INCLUDE,
+AND THIS LICENSE DOES NOT GRANT TO YOU, THE RIGHT TO USE THE SOFTWARE TO:
+
+  (a) access, probe, test, scan, or analyze any computer system, network,
+      or service without the express written authorization of its owner
+      or operator;
+
+  (b) conduct penetration testing, vulnerability assessment, denial-of-service
+      attacks, or any form of unauthorized security testing against systems
+      you do not own or are not explicitly authorized to test;
+
+  (c) discover, enumerate, fingerprint, or map network services, hosts, or
+      infrastructure that you do not own or are not explicitly authorized
+      to assess.
+
+Use of the Software for any purpose described in (a)–(c) without appropriate
+authorization is a violation of this License. Such use is not permitted under
+this License and may constitute infringement of the copyright owner's exclusive
+rights under applicable law, including but not limited to the Computer Fraud
+and Abuse Act (18 U.S.C. § 1030) and equivalent statutes in other
+jurisdictions.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

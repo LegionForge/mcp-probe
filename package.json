@@ -19,7 +19,10 @@
     "probe": "tsx src/cli.ts probe",
     "audit": "tsx src/cli.ts audit",
     "ui": "tsx src/cli.ts ui",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.0",
@@ -36,7 +39,9 @@
     "@types/which": "^3.0.4",
     "tsup": "^8.3.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.0"
   },
   "tsup": {
     "entry": ["src/cli.ts", "src/index.ts"],
