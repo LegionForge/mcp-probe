@@ -9,27 +9,7 @@ on:
     - cron: "0 8 * * 1"  # Weekly Monday 08:00 UTC
 
 jobs:
-  npm-audit:
-    name: npm audit (CVE scan)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      # Fail on high/critical CVEs; moderate = warn only
-      - run: npm audit --audit-level=high
-
-  license-check:
-    name: License Compliance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npx license-checker --production --failOn "GPL;AGPL;SSPL" --summary
+  audit:
+    uses: LegionForge/dev-rig/.github/workflows/node-audit.yml@main
+    with:
+      audit-level: "high"

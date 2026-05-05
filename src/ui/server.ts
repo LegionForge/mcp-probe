@@ -11,9 +11,39 @@ import type { ProbeConfig, AnalysisResult } from "../types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const LOCALHOST_ORIGIN_RE = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
 export function createServer(config: ProbeConfig) {
   const app = express();
-  app.use(cors());
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow same-origin requests (no Origin header) and any localhost origin
+      if (!origin || LOCALHOST_ORIGIN_RE.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Forbidden"));
+      }
+    },
+  }));
+
+  app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Content-Security-Policy",
+      "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    next();
+  });
+
+  app.use((_req, res, next) => {
+    res.setTimeout(60_000, () => {
+      if (!res.headersSent) res.status(503).json({ error: "Request timed out" });
+    });
+    next();
+  });
+
   app.use(express.json());
   app.use(express.static(join(__dirname, "public")));
 
@@ -68,9 +98,18 @@ export function createServer(config: ProbeConfig) {
   return app;
 }
 
+const SAFE_UI_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
 export async function startUI(config: ProbeConfig): Promise<void> {
   const port = config.ui?.port ?? 4242;
   const host = config.ui?.host ?? "localhost";
+
+  if (!SAFE_UI_HOSTS.has(host)) {
+    process.stderr.write(
+      `Warning: binding UI to "${host}" exposes the dashboard to the network.\n`
+    );
+  }
+
   const app = createServer(config);
 
   await new Promise<void>((resolve) => {

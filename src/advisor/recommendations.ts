@@ -141,7 +141,7 @@ function buildConfigSnippet(
     : "";
 
   const npxArgs = launchCmd
-    ? `["-y", "mcp-remote", "${server.url}"${authArgs}${transportArgs}]`
+    ? `["-y", "mcp-remote", ${JSON.stringify(server.url)}${authArgs}${transportArgs}]`
     : `["YOUR_SERVER_ARGS_HERE"]`;
 
   const cliEntry = `"${server.name}": {

@@ -51,7 +51,7 @@ program
       process.exit(1);
     }
 
-    const timeout = parseInt(opts.timeout, 10);
+    const timeout = Math.min(Math.max(parseInt(opts.timeout, 10) || 8000, 100), 300_000);
     const results = await Promise.all(servers.map((s) => probeServer(s, timeout)));
 
     if (globalOpts.json) {

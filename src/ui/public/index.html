@@ -247,8 +247,8 @@ function buildServerNav() {
   nav.innerHTML = state.probes.map(p => {
     const dot = p.failed > 0 ? 'fail' : p.warned > 0 ? 'warn' : 'pass';
     const active = currentView === 'server' && selectedServer === p.server;
-    return `<div class="nav-item ${active ? 'active' : ''}" data-view="server" onclick="setView('server','${p.server}')">
-      <div class="nav-dot ${dot}"></div> ${p.server}
+    return `<div class="nav-item ${active ? 'active' : ''}" data-view="server" data-server="${escHtml(p.server)}" onclick="setView('server', this.dataset.server)">
+      <div class="nav-dot ${dot}"></div> ${escHtml(p.server)}
     </div>`;
   }).join('');
 }
@@ -290,10 +290,10 @@ function overview() {
       <div class="card-header"><span class="card-title">Servers</span></div>
       <div class="card-body">
         ${state.probes.map(p => `
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="setView('server','${p.server}')">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" data-server="${escHtml(p.server)}" onclick="setView('server', this.dataset.server)">
             <div style="flex:1">
-              <div style="font-weight:600">${p.server}</div>
-              <div style="color:var(--muted);font-size:11px;font-family:var(--mono)">${p.url} · ${p.transport}</div>
+              <div style="font-weight:600">${escHtml(p.server)}</div>
+              <div style="color:var(--muted);font-size:11px;font-family:var(--mono)">${escHtml(p.url)} · ${escHtml(p.transport)}</div>
             </div>
             ${statusBadge(p.passed, p.failed, p.warned)}
             <span style="color:var(--muted);font-size:12px">→</span>
@@ -308,8 +308,8 @@ function overview() {
       <div class="card-body">
         ${state.recommendations.filter(r => r.severity === 'required').slice(0, 3).map(r => `
           <div class="rec-card required" style="margin-bottom:8px">
-            <div class="rec-title">${r.title}</div>
-            <div class="rec-desc">${r.description}</div>
+            <div class="rec-title">${escHtml(r.title)}</div>
+            <div class="rec-desc">${escHtml(r.description)}</div>
           </div>
         `).join('')}
         ${reqRecs > 3 ? `<div style="color:var(--muted);font-size:12px;margin-top:8px">+${reqRecs - 3} more — see Recommendations</div>` : ''}
@@ -323,8 +323,8 @@ function renderServer(serverName) {
   if (!probe) return;
 
   document.getElementById('main-content').innerHTML = `
-    <div class="section-title">${probe.server}</div>
-    <div class="section-sub" style="font-family:var(--mono)">${probe.url} · ${probe.transport} · ${new Date(probe.timestamp).toLocaleTimeString()}</div>
+    <div class="section-title">${escHtml(probe.server)}</div>
+    <div class="section-sub" style="font-family:var(--mono)">${escHtml(probe.url)} · ${escHtml(probe.transport)} · ${escHtml(new Date(probe.timestamp).toLocaleTimeString())}</div>
 
     <div class="summary-row">
       <div class="stat-card pass"><div class="stat-value">${probe.passed}</div><div class="stat-label">Passed</div></div>
@@ -344,8 +344,8 @@ function renderServer(serverName) {
             <div class="check-row">
               ${checkIcon(c.status)}
               <div>
-                <div class="check-msg">${c.message}</div>
-                ${c.detail ? `<div class="check-detail">${c.detail}</div>` : ''}
+                <div class="check-msg">${escHtml(c.message)}</div>
+                ${c.detail ? `<div class="check-detail">${escHtml(c.detail)}</div>` : ''}
               </div>
             </div>
           `).join('')}
@@ -357,7 +357,7 @@ function renderServer(serverName) {
     <div class="card">
       <div class="card-header"><span class="card-title">Tools (${probe.tools.length})</span></div>
       <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
-        ${probe.tools.map(t => `<span class="badge badge-pass">${t}</span>`).join('')}
+        ${probe.tools.map(t => `<span class="badge badge-pass">${escHtml(t)}</span>`).join('')}
       </div>
     </div>` : ''}
   `;
@@ -378,14 +378,14 @@ function clients() {
         <thead>
           <tr>
             <th>Client</th>
-            ${serverNames.map(s => `<th>${s}</th>`).join('')}
+            ${serverNames.map(s => `<th>${escHtml(s)}</th>`).join('')}
             <th>Config Path</th>
           </tr>
         </thead>
         <tbody>
           ${installed.map(c => `
             <tr>
-              <td class="client-name">${c.displayName}</td>
+              <td class="client-name">${escHtml(c.displayName)}</td>
               ${serverNames.map(s => {
                 const w = c.serverWiring[s];
                 if (!w) return `<td><span class="wiring-pill na">N/A</span></td>`;
@@ -393,7 +393,7 @@ function clients() {
                 const label = w.configured ? (w.processRunning ? '✓ live' : '✓ config') : '✗ missing';
                 return `<td><span class="wiring-pill ${cls}">${label}</span></td>`;
               }).join('')}
-              <td style="color:var(--muted);font-size:11px;font-family:var(--mono)">${c.configPath ? c.configPath.replace(/^\/Users\/[^/]+\//, '~/').replace(/^\/home\/[^/]+\//, '~/') : '—'}</td>
+              <td style="color:var(--muted);font-size:11px;font-family:var(--mono)">${c.configPath ? escHtml(c.configPath.replace(/^\/Users\/[^/]+\//, '~/').replace(/^\/home\/[^/]+\//, '~/')) : '—'}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -404,7 +404,7 @@ function clients() {
     <div class="card">
       <div class="card-header"><span class="card-title">Not Installed</span></div>
       <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
-        ${notInstalled.map(c => `<span class="badge badge-skip">${c.displayName}</span>`).join('')}
+        ${notInstalled.map(c => `<span class="badge badge-skip">${escHtml(c.displayName)}</span>`).join('')}
       </div>
     </div>` : ''}
   `;
@@ -426,10 +426,10 @@ function recommendations() {
       <div class="rec-card ${r.severity}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
           <span class="rec-severity ${r.severity}">${r.severity}</span>
-          <span style="color:var(--muted);font-size:11px">→ ${r.client} · ${r.server}</span>
+          <span style="color:var(--muted);font-size:11px">→ ${escHtml(r.client)} · ${escHtml(r.server)}</span>
         </div>
-        <div class="rec-title">${r.title}</div>
-        <div class="rec-desc">${r.description}</div>
+        <div class="rec-title">${escHtml(r.title)}</div>
+        <div class="rec-desc">${escHtml(r.description)}</div>
         ${r.configSnippet ? `<pre class="rec-snippet">${escHtml(r.configSnippet)}</pre>` : ''}
       </div>
     `).join('')}
@@ -449,12 +449,12 @@ function discovery() {
           ${runtimes.map(r => `
             <div class="runtime-card">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                <div class="runtime-name">${r.name}</div>
+                <div class="runtime-name">${escHtml(r.name)}</div>
                 ${r.available
-                  ? `<span class="runtime-ver">${r.version.split('\n')[0].replace('node ', 'v')}</span>`
+                  ? `<span class="runtime-ver">${escHtml(r.version.split('\n')[0].replace('node ', 'v'))}</span>`
                   : `<span class="runtime-missing">not found</span>`}
               </div>
-              <div class="runtime-relevance">${r.mcpRelevance}</div>
+              <div class="runtime-relevance">${escHtml(r.mcpRelevance)}</div>
             </div>
           `).join('')}
         </div>
@@ -469,8 +469,8 @@ function discovery() {
             <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
               <span class="badge ${c.installed ? 'badge-pass' : 'badge-skip'}">${c.installed ? '✓' : '─'}</span>
               <div>
-                <div style="font-weight:500">${c.displayName}</div>
-                ${c.installed && c.configPath ? `<div style="color:var(--muted);font-size:11px;font-family:var(--mono)">${c.configPath}</div>` : ''}
+                <div style="font-weight:500">${escHtml(c.displayName)}</div>
+                ${c.installed && c.configPath ? `<div style="color:var(--muted);font-size:11px;font-family:var(--mono)">${escHtml(c.configPath)}</div>` : ''}
               </div>
             </div>
           `).join('')}

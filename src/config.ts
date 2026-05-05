@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import type { ProbeConfig, ServerConfig, ServerAuth } from "./types.js";
 
 const CONFIG_NAMES = [".mcp-probe.json", "mcp-probe.json", "mcp-probe.config.json"];
@@ -33,12 +33,13 @@ export function resolveAuth(auth: ServerAuth): string | undefined {
 
   if (auth.keyFrom === "keychain" && auth.keychainService && auth.keychainAccount) {
     try {
-      const key = execSync(
-        `security find-generic-password -s "${auth.keychainService}" -a "${auth.keychainAccount}" -w`,
+      const result = spawnSync(
+        "security",
+        ["find-generic-password", "-s", auth.keychainService, "-a", auth.keychainAccount, "-w"],
         { stdio: ["pipe", "pipe", "pipe"] }
-      )
-        .toString()
-        .trim();
+      );
+      if (result.status !== 0 || result.error) return undefined;
+      const key = result.stdout.toString().trim();
       return key || undefined;
     } catch {
       return undefined;

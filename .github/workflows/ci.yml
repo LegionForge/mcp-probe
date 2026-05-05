@@ -7,49 +7,32 @@ on:
     branches: [main]
 
 jobs:
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
+  lint:
+    uses: LegionForge/dev-rig/.github/workflows/node-lint.yml@main
+    with:
+      source-dirs: "src"
+
+  test:
+    uses: LegionForge/dev-rig/.github/workflows/node-test.yml@main
+    with:
+      coverage-threshold: 80
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: typecheck
+    needs: lint
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
+
       - run: npm ci
       - run: npm run build
+
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
-
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-    needs: typecheck
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npm test -- --coverage
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage
-          path: coverage/

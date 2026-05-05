@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import type { RuntimeInfo } from "../types.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,10 +53,10 @@ const RUNTIMES: RuntimeDef[] = [
 
 function tryVersion(command: string, versionArg: string): string | null {
   try {
-    return execSync(`${command} ${versionArg} 2>/dev/null`, { stdio: "pipe" })
-      .toString()
-      .trim()
-      .split("\n")[0];
+    const result = spawnSync(command, [versionArg], { stdio: "pipe" });
+    if (result.status !== 0 || result.error) return null;
+    const out = result.stdout?.toString().trim().split("\n")[0] ?? "";
+    return out || null;
   } catch {
     return null;
   }

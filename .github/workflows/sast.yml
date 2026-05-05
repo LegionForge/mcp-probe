@@ -11,30 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  semgrep:
-    name: Semgrep SAST
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install semgrep
-        run: pip install semgrep
-      - name: Run semgrep
-        run: |
-          semgrep scan \
-            --config p/javascript \
-            --config p/typescript \
-            --config p/nodejs \
-            --config p/secrets \
-            --error \
-            src/
-
-  codeql:
-    name: CodeQL
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
-        with:
-          languages: javascript-typescript
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+  sast:
+    uses: LegionForge/dev-rig/.github/workflows/node-sast.yml@main
+    with:
+      source-dirs: "src"
+    permissions:
+      security-events: write

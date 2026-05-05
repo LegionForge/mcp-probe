@@ -14,6 +14,19 @@ function check(
   return { name, status, message, detail };
 }
 
+function validateServerUrl(url: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return `Not a valid URL: ${url}`;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return `URL must use http or https scheme, got: ${parsed.protocol}`;
+  }
+  return null;
+}
+
 async function postRpc(
   url: string,
   method: string,
@@ -87,6 +100,13 @@ export async function probeServer(
   let discoveredTools: string[] = [];
 
   const ts = new Date().toISOString();
+
+  // ── URL validation ───────────────────────────────────────────────────────────
+  const urlError = validateServerUrl(server.url);
+  if (urlError) {
+    checks.push(check("url-validation", "fail", urlError));
+    return buildResult(server, ts, detectedTransport, checks, discoveredTools);
+  }
 
   // ── T01: Reachability ────────────────────────────────────────────────────────
   const reachRes = await (async () => {
