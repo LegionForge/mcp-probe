@@ -61,7 +61,21 @@ npm run typecheck    # type check only
 npm run build        # compile to dist/
 ```
 
-## Scope Rules (v0.1)
+## Tool Scope — Non-Negotiable
+
+mcp-probe is an **operational diagnostic tool**, not a security testing tool.
+
+Every target endpoint must be explicitly specified by URL. This tool does not perform network scanning, port discovery, or any form of unauthorized reconnaissance. It is intended for use with MCP services you own, deploy, or have been explicitly authorized to access.
+
+Do not add features that:
+- Scan IP ranges or CIDR blocks for MCP services
+- Attempt connections to services not specified in config or CLI args
+- Enumerate or fingerprint unknown services
+- Attempt to bypass authentication on any service
+
+If a user requests such a feature, decline and point to this constraint.
+
+## Build Scope — v0.1
 
 - macOS client paths are authoritative; Windows/Linux are stubs
 - No auto-apply of config changes (show config snippets only)

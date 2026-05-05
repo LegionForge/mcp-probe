@@ -1,7 +1,7 @@
 {
   "name": "@legionforge/mcp-probe",
   "version": "0.1.0",
-  "description": "MCP server analysis, configuration advisor, and connectivity tool for Claude and other AI clients",
+  "description": "Connectivity and configuration advisor for MCP services you own or operate. Configures, connects, diagnoses, and recommends — no network scanning or unauthorized probing.",
   "keywords": ["mcp", "model-context-protocol", "claude", "cursor", "windsurf", "diagnostic", "configuration"],
   "author": "JP Cruz <jp@legionforge.org>",
   "license": "MIT",
