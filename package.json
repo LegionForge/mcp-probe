@@ -1,0 +1,50 @@
+{
+  "name": "@legionforge/mcp-probe",
+  "version": "0.1.0",
+  "description": "MCP server analysis, configuration advisor, and connectivity tool for Claude and other AI clients",
+  "keywords": ["mcp", "model-context-protocol", "claude", "cursor", "windsurf", "diagnostic", "configuration"],
+  "author": "JP Cruz <jp@legionforge.org>",
+  "license": "MIT",
+  "homepage": "https://github.com/legionforge/mcp-probe",
+  "repository": { "type": "git", "url": "https://github.com/legionforge/mcp-probe.git" },
+  "type": "module",
+  "bin": {
+    "mcp-probe": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "probe": "tsx src/cli.ts probe",
+    "audit": "tsx src/cli.ts audit",
+    "ui": "tsx src/cli.ts ui",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "which": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/which": "^3.0.4",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "tsup": {
+    "entry": ["src/cli.ts", "src/index.ts"],
+    "format": ["esm"],
+    "target": "node20",
+    "splitting": false,
+    "sourcemap": false,
+    "clean": true,
+    "banner": { "js": "#!/usr/bin/env node" }
+  }
+}

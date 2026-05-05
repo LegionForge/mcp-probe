@@ -1,0 +1,31 @@
+{
+  "servers": [
+    {
+      "name": "my-server",
+      "displayName": "My MCP Server",
+      "url": "http://localhost:8100/mcp",
+      "auth": {
+        "header": "x-api-key",
+        "keyFrom": "env",
+        "envVar": "MY_MCP_KEY"
+      },
+      "expectedTools": ["search", "list"],
+      "testTool": {
+        "name": "search",
+        "args": { "query": "test", "limit": 1 }
+      }
+    },
+    {
+      "name": "no-auth-server",
+      "displayName": "Local Obsidian",
+      "url": "http://localhost:22360/sse"
+    }
+  ],
+  "ui": {
+    "port": 4242,
+    "host": "localhost"
+  },
+  "defaults": {
+    "timeout": 8000
+  }
+}
