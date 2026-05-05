@@ -26,21 +26,45 @@ This document states what this tool is for and what it is not for. If you're uns
 - Reconnaissance, fingerprinting, or discovery of systems **you do not have authorization to test**
 - Any use that violates applicable law, including the Computer Fraud and Abuse Act (CFAA), the UK Computer Misuse Act, the EU NIS2 Directive, or equivalent statutes in your jurisdiction
 
-**Put plainly: if you do not own the server, or do not have a signed authorization to test it — do not point this tool at it.**
+---
+
+## The Simple Test
+
+Using this tool against systems you do not own or control is the digital
+equivalent of picking your neighbor's lock to check if their door works.
+It does not matter that you did not steal anything. The breaking-in is
+the violation.
+
+There is a very simple test for whether your use of mcp-probe is authorized:
+**if you have to ask yourself whether you have permission to test the target
+system, you do not have permission.**
+
+This tool is not for people who need to ask that question. If you are already
+typing the URL of someone else's server and feeling clever about it — stop.
+You are not clever. You are in violation of this license, probably in violation
+of federal law, and definitely in violation of the spirit in which this
+software was released.
+
+**Don't be a dick.**
 
 ---
 
 ## Why we're explicit about this
 
-mcp-probe performs real HTTP requests and protocol-level interactions with the services you configure. The same capabilities that make it useful for diagnosing your own infrastructure could be misused against systems you have no right to access.
+mcp-probe performs real HTTP requests and protocol-level interactions with the
+services you configure. The same capabilities that make it useful for
+diagnosing your own infrastructure could be misused against systems you have
+no right to access.
 
-We are not a security testing tool. We do not want to be. If you need a penetration testing framework, this is not it.
+We are not a security testing tool. We do not want to be. If you need a
+penetration testing framework, this is not it.
 
 ---
 
 ## Reporting misuse
 
-If you observe mcp-probe being used to target systems without authorization, report it to: **jp@legionforge.org**
+If you observe mcp-probe being used to target systems without authorization,
+report it to: **jp@legionforge.org**
 
 ---
 
@@ -48,4 +72,6 @@ If you observe mcp-probe being used to target systems without authorization, rep
 
 Own it or have a signed authorization to test it. Everything else is out of scope.
 
-*Unauthorized use violates the LICENSE and may violate applicable law.*
+*Unauthorized use violates Condition 2 of the LICENSE, exceeds the scope of
+the rights granted, and constitutes copyright infringement. It may also
+violate applicable criminal and civil law.*

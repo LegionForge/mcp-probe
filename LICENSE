@@ -1,6 +1,11 @@
-MIT License with Usage Restriction
+MIT License (with Usage Restriction Condition)
 
 Copyright (c) 2026 JP Cruz <jp@legionforge.org>
+
+The intent of this License is to grant broad rights to use, copy, modify, and
+distribute the Software, subject to the conditions set forth herein. These
+conditions define the scope of the rights granted. Use of the Software that
+exceeds the scope of these conditions is not authorized by this License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,30 +14,29 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Condition 1. The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
 
-WITHOUT LIMITING THE FOREGOING, THE GRANT OF RIGHTS ABOVE DOES NOT INCLUDE,
-AND THIS LICENSE DOES NOT GRANT TO YOU, THE RIGHT TO USE THE SOFTWARE TO:
+Condition 2. The rights granted above are expressly conditioned on the
+Software not being used, directly or indirectly, for any of the following
+purposes (the "Restricted Purposes"):
 
-  (a) access, probe, test, scan, or analyze any computer system, network,
-      or service without the express written authorization of its owner
-      or operator;
+  (a) accessing, probing, testing, scanning, or analyzing any computer
+      system, network, or service without the express written authorization
+      of its owner or operator;
 
-  (b) conduct penetration testing, vulnerability assessment, denial-of-service
-      attacks, or any form of unauthorized security testing against systems
-      you do not own or are not explicitly authorized to test;
+  (b) conducting penetration testing, vulnerability assessment, denial-of-
+      service attacks, or any form of unauthorized security testing against
+      systems you do not own or are not explicitly authorized to test; or
 
-  (c) discover, enumerate, fingerprint, or map network services, hosts, or
-      infrastructure that you do not own or are not explicitly authorized
-      to assess.
+  (c) discovering, enumerating, fingerprinting, or mapping network services,
+      hosts, or infrastructure that you do not own or are not explicitly
+      authorized to assess.
 
-Use of the Software for any purpose described in (a)–(c) without appropriate
-authorization is a violation of this License. Such use is not permitted under
-this License and may constitute infringement of the copyright owner's exclusive
-rights under applicable law, including but not limited to the Computer Fraud
-and Abuse Act (18 U.S.C. § 1030) and equivalent statutes in other
-jurisdictions.
+Provided that any use of the Software for a Restricted Purpose without the
+required authorization is not licensed under this License, exceeds the scope
+of the rights granted herein, and constitutes infringement of the copyright
+owner's exclusive rights.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
