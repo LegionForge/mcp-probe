@@ -100,6 +100,55 @@ export function generateRecommendations(
     }
   }
 
+  // ── Dual-config cross-check ───────────────────────────────────────────────
+  // claude_desktop_config.json and ~/.claude/settings.json are read by different
+  // clients. The VSCode extension (including SSH sessions) inherits from
+  // claude_desktop_config.json — NOT from settings.json. A server missing from
+  // the Desktop config is invisible to all VSCode sessions regardless of what's
+  // in settings.json. Always check both files.
+  const desktopAudit = auditResults.find((c) => c.clientId === "claude-desktop");
+  const codeAudit = auditResults.find((c) => c.clientId === "claude-code");
+
+  if (desktopAudit?.installed && codeAudit?.installed) {
+    for (const server of servers) {
+      const inDesktop = desktopAudit.serverWiring[server.name]?.configured;
+      const inCode = codeAudit.serverWiring[server.name]?.configured;
+
+      if (inCode && !inDesktop) {
+        recs.push({
+          id: id(),
+          severity: "required",
+          client: "claude-desktop",
+          server: server.name,
+          title: `"${server.name}" in settings.json but missing from claude_desktop_config.json`,
+          description:
+            `Server is configured for Claude Code CLI (~/.claude/settings.json) but not for Claude Desktop App. ` +
+            `The VSCode extension — including sessions over SSH — sources MCP servers from claude_desktop_config.json only. ` +
+            `Add this server to both files so all client types can reach it.`,
+          configSnippet: buildConfigSnippet(server, "claude-desktop", runtimes),
+          action: "add-to-config",
+          actionLabel: "Add to claude_desktop_config.json",
+        });
+      }
+
+      if (inDesktop && !inCode) {
+        recs.push({
+          id: id(),
+          severity: "suggested",
+          client: "claude-code",
+          server: server.name,
+          title: `"${server.name}" in claude_desktop_config.json but missing from settings.json`,
+          description:
+            `Server is configured for Claude Desktop App but not for Claude Code CLI (~/.claude/settings.json). ` +
+            `Terminal Claude Code sessions won't have access to this server.`,
+          configSnippet: buildConfigSnippet(server, "claude-code", runtimes),
+          action: "add-to-config",
+          actionLabel: "Add to ~/.claude/settings.json",
+        });
+      }
+    }
+  }
+
   // ── Runtime recommendations ───────────────────────────────────────────────
   const hasNode = runtimes.find((r) => r.command === "node")?.available;
   if (!hasNode) {

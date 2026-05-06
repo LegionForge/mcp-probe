@@ -126,6 +126,9 @@ function auditClaudeCode(server: ServerConfig): WiringStatus {
   if (!configured) {
     issues.push(`Server "${server.name}" not in mcpServers`);
     suggestions.push(`Add "${server.name}" to ~/.claude/settings.json`);
+    suggestions.push(
+      `Also check claude_desktop_config.json — VSCode extension (including SSH sessions) reads that file, not settings.json`
+    );
   }
 
   return { configured, processRunning: false, logHealthy: null, issues, suggestions };
