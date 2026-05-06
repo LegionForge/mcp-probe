@@ -16,18 +16,18 @@
   "homepage": "https://github.com/legionforge/mcp-probe",
   "repository": {
     "type": "git",
-    "url": "https://github.com/legionforge/mcp-probe.git"
+    "url": "git+https://github.com/legionforge/mcp-probe.git"
   },
   "type": "module",
   "bin": {
-    "mcp-probe": "./dist/cli.js"
+    "mcp-probe": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp -r src/ui/public dist/",
     "dev": "tsx src/cli.ts",
     "probe": "tsx src/cli.ts probe",
     "audit": "tsx src/cli.ts audit",
