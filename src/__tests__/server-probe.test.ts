@@ -25,7 +25,7 @@ data: {"error":{"code":-32700,"message":"Parse error","data":"Unexpected token"}
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
-function mockResponse(body: string, status = 200) {
+function _mockResponse(body: string, status = 200) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
     status,

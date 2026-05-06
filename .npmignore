@@ -1,0 +1,11 @@
+src/
+tests/
+scripts/
+coverage/
+.github/
+.pre-commit-config.yaml
+vitest.config.ts
+tsconfig.json
+*.example.json
+CLAUDE.md
+SECURITY.md

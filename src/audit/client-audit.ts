@@ -63,7 +63,6 @@ function claudeLogHealthy(serverName: string): boolean | null {
 
 // ── Per-client config file locations ─────────────────────────────────────────
 
-const CLAUDE_LOG_DIR = join(homedir(), "Library", "Logs", "Claude");
 
 function auditClaudeDesktop(server: ServerConfig): WiringStatus {
   const issues: string[] = [];
