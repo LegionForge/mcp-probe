@@ -59,6 +59,22 @@ Starts a local web dashboard showing all servers, client wiring, and recommendat
 
 ---
 
+## Screenshots
+
+### Overview
+![Overview dashboard](docs/screenshots/overview.png)
+
+### Client Wiring
+![Client wiring matrix](docs/screenshots/client-wiring.png)
+
+### Recommendations
+![Configuration recommendations](docs/screenshots/recommendations.png)
+
+### Discovery
+![System discovery](docs/screenshots/discovery.png)
+
+---
+
 ## Installation
 
 ```bash
