@@ -62,16 +62,16 @@ Starts a local web dashboard showing all servers, client wiring, and recommendat
 ## Screenshots
 
 ### Overview
-![Overview dashboard](docs/screenshots/overview.png)
+![Overview dashboard](docs/screenshots/mcp-probe-overview-v0.1.0.png)
 
 ### Client Wiring
-![Client wiring matrix](docs/screenshots/client-wiring.png)
+![Client wiring matrix](docs/screenshots/mcp-probe-client-wiring-v0.1.0.png)
 
 ### Recommendations
-![Configuration recommendations](docs/screenshots/recommendations.png)
+![Configuration recommendations](docs/screenshots/mcp-probe-recommendations-v0.1.0.png)
 
 ### Discovery
-![System discovery](docs/screenshots/discovery.png)
+![System discovery](docs/screenshots/mcp-probe-discovery-v0.1.0.png)
 
 ---
 
