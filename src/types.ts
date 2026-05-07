@@ -114,6 +114,10 @@ export interface RuntimeInfo {
   availableVersions?: string[];
   /** For Node.js: suggestion for switching versions */
   suggestion?: string;
+  /** For Python: active environment (venv, conda, system) and location */
+  environment?: { active: string; location: string };
+  /** For Python: warnings about environment setup (e.g. multiple managers detected) */
+  environmentWarnings?: string[];
 }
 
 export interface DiscoveryResult {

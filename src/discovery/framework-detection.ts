@@ -81,6 +81,55 @@ function detectNodeVersionManager(): "nvm" | "asdf" | "fnm" | "volta" | null {
   return null;
 }
 
+// Detect Python environment - prevents editing the wrong environment
+// (system vs venv vs conda) which has caused real damage in the past
+function detectPythonEnvironment(): { active: string; location: string; warnings: string[] } {
+  const warnings: string[] = [];
+  const home = homedir();
+
+  // Check if in a venv
+  const venvPath = process.env.VIRTUAL_ENV;
+  if (venvPath) {
+    return {
+      active: `venv (${venvPath})`,
+      location: venvPath,
+      warnings,
+    };
+  }
+
+  // Check if in conda environment
+  const condaEnv = process.env.CONDA_PREFIX;
+  const condaEnvName = process.env.CONDA_DEFAULT_ENV;
+  if (condaEnv) {
+    return {
+      active: `conda (${condaEnvName || "base"})`,
+      location: condaEnv,
+      warnings,
+    };
+  }
+
+  // No active venv or conda - using system or managed Python
+  // Detect which managers are installed
+  const pythonPath = tryVersion("python3", "-c 'import sys; print(sys.executable)'") ||
+    spawnSync("which", ["python3"], { stdio: "pipe" }).stdout?.toString().trim();
+
+  const managers: string[] = [];
+  if (existsSync(join(home, ".pyenv", "versions"))) managers.push("pyenv");
+  if (existsSync(join(home, ".asdf", "installs", "python"))) managers.push("asdf");
+  if (existsSync(join(home, ".conda"))) managers.push("conda");
+  if (existsSync(join(home, ".local", "bin", "uv"))) managers.push("uv");
+
+  if (managers.length > 1) {
+    warnings.push(`Multiple Python managers detected (${managers.join(", ")}) — verify correct one is active`);
+  }
+
+  return {
+    active: pythonPath ? `system/managed (${pythonPath})` : "unknown",
+    location: pythonPath || "unknown",
+    warnings,
+  };
+}
+
 function getAvailableNodeVersions(manager: "nvm" | "asdf" | "fnm" | "volta"): string[] {
   const home = homedir();
   try {
@@ -168,6 +217,18 @@ export function detectRuntimes(): RuntimeInfo[] {
             result.suggestion = `${manager} use ${v20.replace("v", "")}`;
           }
         }
+      }
+    }
+
+    // Special handling for Python: detect active environment (venv, conda, system)
+    if (r.command === "python3" && version) {
+      const pythonEnv = detectPythonEnvironment();
+      result.environment = {
+        active: pythonEnv.active,
+        location: pythonEnv.location,
+      };
+      if (pythonEnv.warnings.length > 0) {
+        result.environmentWarnings = pythonEnv.warnings;
       }
     }
 

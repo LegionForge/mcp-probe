@@ -197,6 +197,17 @@ program
         }
       }
 
+      // Show Python environment info
+      if (r.environment) {
+        console.log(chalk.blue(`    Environment: ${r.environment.active}`));
+        console.log(chalk.dim(`    Location: ${r.environment.location}`));
+        if (r.environmentWarnings && r.environmentWarnings.length > 0) {
+          for (const warn of r.environmentWarnings) {
+            console.log(chalk.yellow(`    ⚠ ${warn}`));
+          }
+        }
+      }
+
       console.log();
     }
   });
