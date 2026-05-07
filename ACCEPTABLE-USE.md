@@ -64,7 +64,7 @@ penetration testing framework, this is not it.
 ## Reporting misuse
 
 If you observe mcp-probe being used to target systems without authorization,
-report it to: **jp@legionforge.org**
+report it to: **security@legionforge.org**
 
 ---
 
