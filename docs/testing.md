@@ -204,17 +204,19 @@ mcp-probe probe http://localhost:3000/mcp --json
 - [ ] All expected fields present
 - [ ] Can be piped to other tools
 
-#### T3.3 — Probe with Custom Name
+#### T3.3 — Probe Named Server from Config
 **Command:**
 ```bash
-mcp-probe probe http://localhost:3000/mcp --name my-test-server
+mcp-probe probe --server test-server-1
 ```
 
 **Expected Output:**
-- Uses custom name "my-test-server" in output instead of "probe"
+- Uses server name from config.json in output
+- Probes the URL associated with that server
 
 **Validation:**
-- [ ] Custom name appears in results
+- [ ] Server name appears in results (not "probe")
+- [ ] Correct URL is probed
 
 ---
 
