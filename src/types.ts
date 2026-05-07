@@ -106,6 +106,14 @@ export interface RuntimeInfo {
   version: string;
   available: boolean;
   mcpRelevance: string;
+  /** For Node.js: warning if version < 20 */
+  warning?: string;
+  /** For Node.js: detected version manager (nvm, asdf, fnm, volta) */
+  versionManager?: "nvm" | "asdf" | "fnm" | "volta" | null;
+  /** For Node.js: available versions from manager (e.g. ["v20.11.0", "v18.19.0"]) */
+  availableVersions?: string[];
+  /** For Node.js: suggestion for switching versions */
+  suggestion?: string;
 }
 
 export interface DiscoveryResult {

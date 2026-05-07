@@ -184,7 +184,20 @@ program
       const icon = r.available ? chalk.green("✓") : chalk.dim("─");
       const ver = r.available ? chalk.green(r.version.split("\n")[0]) : chalk.dim("not found");
       console.log(`  ${icon} ${chalk.bold(r.name)}  ${ver}`);
-      console.log(chalk.dim(`    ${r.mcpRelevance}\n`));
+      console.log(chalk.dim(`    ${r.mcpRelevance}`));
+
+      // Show Node version warnings and suggestions
+      if (r.warning) {
+        console.log(chalk.yellow(`    ⚠ ${r.warning}`));
+        if (r.versionManager && r.suggestion) {
+          console.log(chalk.cyan(`    → Run: ${r.suggestion}`));
+        }
+        if (r.availableVersions && r.availableVersions.length > 0) {
+          console.log(chalk.dim(`    Available: ${r.availableVersions.slice(0, 3).join(", ")}`));
+        }
+      }
+
+      console.log();
     }
   });
 

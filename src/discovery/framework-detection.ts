@@ -1,4 +1,7 @@
 import { spawnSync } from "child_process";
+import { existsSync, readdirSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 import type { RuntimeInfo } from "../types.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -62,16 +65,113 @@ function tryVersion(command: string, versionArg: string): string | null {
   }
 }
 
+function parseMajorVersion(versionString: string): number | null {
+  const match = versionString.match(/v?(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+// Detect Node version managers - requested by user who has experienced
+// painful version switch bugs (forgetting to switch back after testing with older versions)
+function detectNodeVersionManager(): "nvm" | "asdf" | "fnm" | "volta" | null {
+  const home = homedir();
+  if (existsSync(join(home, ".nvm", "versions", "node"))) return "nvm";
+  if (existsSync(join(home, ".asdf", "installs", "nodejs"))) return "asdf";
+  if (existsSync(join(home, ".fnm", "node-versions"))) return "fnm";
+  if (existsSync(join(home, ".volta", "tools", "image", "node"))) return "volta";
+  return null;
+}
+
+function getAvailableNodeVersions(manager: "nvm" | "asdf" | "fnm" | "volta"): string[] {
+  const home = homedir();
+  try {
+    let dir = "";
+    switch (manager) {
+      case "nvm":
+        dir = join(home, ".nvm", "versions", "node");
+        break;
+      case "asdf":
+        dir = join(home, ".asdf", "installs", "nodejs");
+        break;
+      case "fnm":
+        dir = join(home, ".fnm", "node-versions");
+        break;
+      case "volta":
+        dir = join(home, ".volta", "tools", "image", "node");
+        break;
+    }
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir)
+      .filter((v) => v.startsWith("v") || /^\d+/.test(v))
+      .sort()
+      .reverse()
+      .slice(0, 5);
+  } catch {
+    return [];
+  }
+}
+
+function tryVersionHybrid(command: string, versionArg: string, paths: string[]): string | null {
+  // Try PATH first
+  const fromPath = tryVersion(command, versionArg);
+  if (fromPath) return fromPath;
+
+  // Fall back to known install paths
+  const home = homedir();
+  for (const path of paths) {
+    const expandedPath = path.replace("~", home);
+    if (existsSync(expandedPath)) {
+      const result = spawnSync(expandedPath, [versionArg], { stdio: "pipe" });
+      if (result.status === 0 && !result.error) {
+        const out = result.stdout?.toString().trim().split("\n")[0] ?? "";
+        if (out) return out;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function detectRuntimes(): RuntimeInfo[] {
+  const commonPaths: Record<string, string[]> = {
+    deno: ["~/.deno/bin/deno", "/usr/local/bin/deno", "/opt/deno"],
+    python3: ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/python/bin/python3"],
+    uvx: ["~/.local/bin/uvx", "/usr/local/bin/uvx", "/opt/uv/bin/uvx"],
+    docker: ["/usr/bin/docker", "/usr/local/bin/docker", "/Applications/Docker.app/Contents/Resources/bin/docker"],
+    bun: ["~/.bun/bin/bun", "/usr/local/bin/bun", "/opt/bun/bin/bun"],
+  };
+
   return RUNTIMES.map((r) => {
-    const version = tryVersion(r.command, r.versionArg);
-    return {
+    // Use hybrid detection for optional runtimes
+    const version = ["deno", "python3", "uvx", "docker", "bun"].includes(r.command)
+      ? tryVersionHybrid(r.command, r.versionArg, commonPaths[r.command] || [])
+      : tryVersion(r.command, r.versionArg);
+
+    const result: RuntimeInfo = {
       name: r.name,
       command: r.command,
       version: version ?? "",
       available: version !== null,
       mcpRelevance: r.mcpRelevance,
     };
+
+    // Special handling for Node.js: check version and detect manager
+    if (r.command === "node" && version) {
+      const majorVersion = parseMajorVersion(version);
+      if (majorVersion !== null && majorVersion < 20) {
+        result.warning = `Node ${majorVersion} detected, but mcp-probe requires Node 20+`;
+        const manager = detectNodeVersionManager();
+        if (manager) {
+          result.versionManager = manager;
+          result.availableVersions = getAvailableNodeVersions(manager);
+          const v20 = result.availableVersions?.find((v) => v.startsWith("v20") || v.startsWith("20"));
+          if (v20) {
+            result.suggestion = `${manager} use ${v20.replace("v", "")}`;
+          }
+        }
+      }
+    }
+
+    return result;
   });
 }
 
