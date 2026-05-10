@@ -13,3 +13,4 @@ jobs:
     uses: LegionForge/dev-rig/.github/workflows/node-audit.yml@main
     with:
       audit-level: "high"
+      license-allowlist: "MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;CC0-1.0;CC-BY-3.0;CC-BY-4.0;Unlicense;BlueOak-1.0.0;Python-2.0;MPL-2.0"
