@@ -1,6 +1,6 @@
 {
   "name": "@legionforge/mcp-probe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connectivity and configuration advisor for MCP services you own or operate. Configures, connects, diagnoses, and recommends — no network scanning or unauthorized probing.",
   "keywords": [
     "mcp",
