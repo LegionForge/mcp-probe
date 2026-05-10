@@ -1,11 +1,28 @@
+# Source and build artifacts
 src/
+coverage/
+.git
+.github/
+
+# Dev & config files
+tsconfig.json
+vitest.config.ts
+eslint.config.js
+.pre-commit-config.yaml
+.eslintignore
+
+# Test & CI
 tests/
 scripts/
-coverage/
-.github/
-.pre-commit-config.yaml
-vitest.config.ts
-tsconfig.json
-*.example.json
+*.test.ts
+*.spec.ts
+
+# Local/project-specific
 CLAUDE.md
 SECURITY.md
+mcp-probe.example.json
+.env*
+
+# Logs
+*.log
+npm-debug.log*
