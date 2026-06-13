@@ -38,9 +38,12 @@ async function postRpc(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
     const res = await fetch(url, {
       method: "POST",
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       headers: { "Content-Type": "application/json", "Accept": "application/json, text/event-stream", ...headers },
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       body,
       signal: ctrl.signal,
     });
@@ -61,8 +64,10 @@ async function getSSE(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), Math.min(timeoutMs, 3000));
   try {
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
     const res = await fetch(url, {
       method: "GET",
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       headers: { Accept: "text/event-stream", ...headers },
       signal: ctrl.signal,
     });
@@ -113,6 +118,7 @@ export async function probeServer(
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       const r = await fetch(server.url, { method: "GET", signal: ctrl.signal });
       return { status: r.status, error: null };
     } catch (e) {
@@ -137,8 +143,10 @@ export async function probeServer(
       // Bad key should get 401/403
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       const badRes = await fetch(server.url, {
         method: "GET",
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
         headers: { [server.auth.header]: "mcp-probe-bad-key-test" },
         signal: ctrl.signal,
       }).catch(() => null).finally(() => clearTimeout(t));
@@ -152,8 +160,10 @@ export async function probeServer(
       // Good key
       const ctrl2 = new AbortController();
       const t2 = setTimeout(() => ctrl2.abort(), timeoutMs);
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
       const goodRes = await fetch(server.url, {
         method: "GET",
+  // codeql[js/file-access-to-http] mcp-probe reads server configs and probes them by design
         headers: { [server.auth.header]: authKey },
         signal: ctrl2.signal,
       }).catch(() => null).finally(() => clearTimeout(t2));
