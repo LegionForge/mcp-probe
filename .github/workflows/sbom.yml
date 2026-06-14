@@ -1,0 +1,11 @@
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sbom:
+    uses: LegionForge/dev-rig/.github/workflows/node-sbom.yml@main
