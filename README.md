@@ -2,8 +2,6 @@
 
 **Connectivity and configuration advisor for MCP services you own or operate.**
 
-💛 [Donate to LegionForge](https://legionforge.org/donations) — LegionForge is open-source and independently maintained.
-
 `mcp-probe` helps developers and operators configure, connect, diagnose, and improve connectivity between AI clients and MCP servers they own or operate. Given a service endpoint, it tests the full connection stack — transport negotiation, authentication, protocol handshake, tool discovery, and client wiring — and tells you exactly what to change and where.
 
 ```
@@ -200,3 +198,8 @@ console.log(result.passed, "checks passed,", result.failed, "failed");
 MIT — © JP Cruz / [LegionForge](https://github.com/legionforge)
 
 `mcp-probe` is intended for use with MCP services you own or are authorized to access. It is not a penetration testing tool and performs no network scanning or unauthorized probing.
+
+---
+
+If you find this project useful, [donations to LegionForge](https://legionforge.org/donations)
+help support ongoing development — entirely optional, never required.
