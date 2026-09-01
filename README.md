@@ -198,3 +198,8 @@ console.log(result.passed, "checks passed,", result.failed, "failed");
 MIT — © JP Cruz / [LegionForge](https://github.com/legionforge)
 
 `mcp-probe` is intended for use with MCP services you own or are authorized to access. It is not a penetration testing tool and performs no network scanning or unauthorized probing.
+
+---
+
+If you find this project useful, [donations to LegionForge](https://legionforge.org/donations)
+help support ongoing development — entirely optional, never required.
