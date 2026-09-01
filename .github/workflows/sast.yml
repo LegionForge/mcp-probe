@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   sast:
-    uses: LegionForge/dev-rig/.github/workflows/node-sast.yml@main
+    uses: LegionForge/dev-rig/.github/workflows/node-sast.yml@dbc782028577aef46e21c674a807efce9b5b9007
     with:
       source-dirs: "src"
     permissions:

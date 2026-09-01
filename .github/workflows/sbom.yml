@@ -8,4 +8,4 @@ on:
 
 jobs:
   sbom:
-    uses: LegionForge/dev-rig/.github/workflows/node-sbom.yml@main
+    uses: LegionForge/dev-rig/.github/workflows/node-sbom.yml@dbc782028577aef46e21c674a807efce9b5b9007

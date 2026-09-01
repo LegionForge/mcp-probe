@@ -8,12 +8,12 @@ on:
 
 jobs:
   lint:
-    uses: LegionForge/dev-rig/.github/workflows/node-lint.yml@main
+    uses: LegionForge/dev-rig/.github/workflows/node-lint.yml@dbc782028577aef46e21c674a807efce9b5b9007
     with:
       source-dirs: "src"
 
   test:
-    uses: LegionForge/dev-rig/.github/workflows/node-test.yml@main
+    uses: LegionForge/dev-rig/.github/workflows/node-test.yml@dbc782028577aef46e21c674a807efce9b5b9007
     with:
       coverage-threshold: 80
 
