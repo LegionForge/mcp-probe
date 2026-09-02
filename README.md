@@ -89,7 +89,7 @@ Requires Node.js 20+.
 
 ### Platform support
 
-**v0.1.0 (current):** macOS only. Full support for client discovery, audit, and recommendations on macOS.
+**v0.1.1 (current):** macOS only. Full support for client discovery, audit, and recommendations on macOS.
 
 **Future (v1.0+):** Windows and Linux support planned. Core probing functionality (`mcp-probe probe [url]`) works on any platform, but client discovery and config paths need per-platform implementation.
 
