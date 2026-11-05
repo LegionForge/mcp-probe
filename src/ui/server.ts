@@ -8,6 +8,7 @@ import { discoverClients } from "../discovery/client-discovery.js";
 import { detectRuntimes } from "../discovery/framework-detection.js";
 import { generateRecommendations } from "../advisor/recommendations.js";
 import type { ProbeConfig, AnalysisResult } from "../types.js";
+import { VERSION } from "../version.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -93,7 +94,7 @@ export function createServer(config: ProbeConfig) {
   });
 
   // ── GET /api/health ────────────────────────────────────────────────────────
-  app.get("/api/health", (_req, res) => res.json({ ok: true, version: "0.1.0" }));
+  app.get("/api/health", (_req, res) => res.json({ ok: true, version: VERSION }));
 
   return app;
 }
