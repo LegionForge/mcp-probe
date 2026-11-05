@@ -8,13 +8,14 @@ import { generateRecommendations } from "./advisor/recommendations.js";
 import { startUI } from "./ui/server.js";
 import { loadConfig, defaultConfig } from "./config.js";
 import type { ServerProbeResult, CheckResult } from "./types.js";
+import { VERSION } from "./version.js";
 
 const program = new Command();
 
 program
   .name("mcp-probe")
   .description("MCP server analysis, configuration advisor, and connectivity tool")
-  .version("0.1.0")
+  .version(VERSION)
   .option("--config <path>", "Path to config file (.mcp-probe.json)")
   .option("--json", "Output as JSON");
 

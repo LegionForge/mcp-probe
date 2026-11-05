@@ -1,5 +1,6 @@
 import type { ServerConfig, ServerProbeResult, CheckResult, Transport } from "../types.js";
 import { buildAuthHeaders } from "../config.js";
+import { VERSION } from "../version.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MCP server protocol probe — transport-agnostic, no external deps beyond fetch
@@ -182,7 +183,7 @@ export async function probeServer(
   const initParams = {
     protocolVersion: "2024-11-05",
     capabilities: {},
-    clientInfo: { name: "mcp-probe", version: "0.1.0" },
+    clientInfo: { name: "mcp-probe", version: VERSION },
   };
 
   let initResponse = "";
