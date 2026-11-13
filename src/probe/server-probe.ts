@@ -28,14 +28,23 @@ function validateServerUrl(url: string): string | null {
   return null;
 }
 
+interface RpcResult {
+  ok: boolean;
+  body: string;
+  status: number;
+  headers: Headers;
+}
+
+// Sends one JSON-RPC message. Pass `id: undefined` for a notification (no reply expected).
 async function postRpc(
   url: string,
   method: string,
   params: unknown,
   headers: Record<string, string>,
-  timeoutMs: number
-): Promise<{ ok: boolean; body: string; status: number }> {
-  const body = JSON.stringify({ jsonrpc: "2.0", id: 1, method, params });
+  timeoutMs: number,
+  id?: number
+): Promise<RpcResult> {
+  const body = JSON.stringify({ jsonrpc: "2.0", ...(id === undefined ? {} : { id }), method, params });
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -49,19 +58,21 @@ async function postRpc(
       signal: ctrl.signal,
     });
     const text = await res.text();
-    return { ok: res.ok, body: text, status: res.status };
+    return { ok: res.ok, body: text, status: res.status, headers: res.headers };
   } catch (e) {
-    return { ok: false, body: String(e), status: 0 };
+    return { ok: false, body: String(e), status: 0, headers: new Headers() };
   } finally {
     clearTimeout(timer);
   }
 }
 
+// Opens the SSE stream and reads only the first chunk: a real SSE stream never
+// closes, so awaiting the whole body would just run into the abort timeout.
 async function getSSE(
   url: string,
   headers: Record<string, string>,
   timeoutMs: number
-): Promise<{ ok: boolean; body: string; status: number }> {
+): Promise<{ ok: boolean; body: string; status: number; contentType: string }> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), Math.min(timeoutMs, 3000));
   try {
@@ -72,10 +83,23 @@ async function getSSE(
       headers: { Accept: "text/event-stream", ...headers },
       signal: ctrl.signal,
     });
-    const text = await res.text().catch(() => "");
-    return { ok: res.ok, body: text, status: res.status };
+    const contentType = res.headers.get("content-type") ?? "";
+    let body = "";
+    if (res.body) {
+      const reader = res.body.getReader();
+      try {
+        const { value } = await reader.read();
+        if (value) body = new TextDecoder().decode(value);
+      } catch {
+        // aborted before the first chunk; the content-type alone can still identify SSE
+      } finally {
+        ctrl.abort();
+        reader.cancel().catch(() => undefined);
+      }
+    }
+    return { ok: res.ok, body, status: res.status, contentType };
   } catch {
-    return { ok: false, body: "", status: 0 };
+    return { ok: false, body: "", status: 0, contentType: "" };
   } finally {
     clearTimeout(timer);
   }
@@ -94,6 +118,40 @@ function extractTools(text: string): string[] {
   return [...new Set(names)];
 }
 
+interface RpcMessage {
+  result?: Record<string, unknown>;
+  error?: { message?: string };
+}
+
+// A reply is either plain JSON or SSE ("data: {...}" lines); return the first JSON-RPC message.
+function parseRpc(text: string): RpcMessage | null {
+  const candidates = [text, ...text.split("\n").filter((l) => l.startsWith("data:")).map((l) => l.slice(5))];
+  for (const c of candidates) {
+    try {
+      const v = JSON.parse(c.trim()) as RpcMessage;
+      if (v && typeof v === "object" && ("result" in v || "error" in v)) return v;
+    } catch {
+      // not JSON; try the next candidate
+    }
+  }
+  return null;
+}
+
+interface ToolInfo {
+  name: string;
+  readOnly: boolean;
+}
+
+function parseTools(text: string): ToolInfo[] {
+  const list = parseRpc(text)?.result?.tools;
+  if (Array.isArray(list)) {
+    return list
+      .filter((t): t is { name: string; annotations?: { readOnlyHint?: boolean } } => typeof t?.name === "string")
+      .map((t) => ({ name: t.name, readOnly: t.annotations?.readOnlyHint === true }));
+  }
+  return extractTools(text).map((name) => ({ name, readOnly: false }));
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function probeServer(
@@ -104,6 +162,8 @@ export async function probeServer(
   const authHeaders = buildAuthHeaders(server);
   let detectedTransport: Transport = "unknown";
   let discoveredTools: string[] = [];
+  let toolInfo: ToolInfo[] = [];
+  let sessionHeaders: Record<string, string> = {};
 
   const ts = new Date().toISOString();
 
@@ -188,13 +248,21 @@ export async function probeServer(
 
   let initResponse = "";
 
-  const httpProbe = await postRpc(server.url, "initialize", initParams, authHeaders, timeoutMs);
+  const httpProbe = await postRpc(server.url, "initialize", initParams, authHeaders, timeoutMs, 1);
   if (httpProbe.body.includes('"protocolVersion"')) {
     detectedTransport = "streamable-http";
     initResponse = httpProbe.body;
+    // Stateful servers hand out a session id that every later request must carry.
+    const sessionId = httpProbe.headers.get("mcp-session-id");
+    if (sessionId) sessionHeaders = { "Mcp-Session-Id": sessionId };
   } else {
     const sseProbe = await getSSE(server.url, authHeaders, 3000);
-    if (sseProbe.body.includes("event:") || sseProbe.body.includes("data:")) {
+    if (
+      sseProbe.ok &&
+      (sseProbe.contentType.includes("text/event-stream") ||
+        sseProbe.body.includes("event:") ||
+        sseProbe.body.includes("data:"))
+    ) {
       detectedTransport = "sse";
     }
   }
@@ -218,16 +286,16 @@ export async function probeServer(
   }
 
   // ── T04: Handshake ───────────────────────────────────────────────────────────
-  if (!initResponse) {
-    const r = await postRpc(server.url, "initialize", initParams, authHeaders, timeoutMs);
-    initResponse = r.body;
-  }
   const proto = extractJsonField(initResponse, "protocolVersion");
   const srvName = extractJsonField(initResponse, "name");
   const srvVer = extractJsonField(initResponse, "version");
 
   if (proto) {
     checks.push(check("handshake", "pass", `Handshake OK — protocol ${proto}, server "${srvName}" ${srvVer}`));
+    // Complete the handshake, then send the negotiated version and session id on every request.
+    const rpcHeaders = { ...authHeaders, ...sessionHeaders, "MCP-Protocol-Version": proto };
+    await postRpc(server.url, "notifications/initialized", undefined, rpcHeaders, timeoutMs);
+    sessionHeaders = { ...sessionHeaders, "MCP-Protocol-Version": proto };
   } else if (initResponse.includes('"error"')) {
     const errMsg = extractJsonField(initResponse, "message");
     checks.push(check("handshake", "fail", `Server error: ${errMsg ?? "unknown"}`));
@@ -238,8 +306,10 @@ export async function probeServer(
   }
 
   // ── T05: Tool discovery ──────────────────────────────────────────────────────
-  const toolsRes = await postRpc(server.url, "tools/list", {}, authHeaders, timeoutMs);
-  discoveredTools = extractTools(toolsRes.body);
+  const rpcHeaders = { ...authHeaders, ...sessionHeaders };
+  const toolsRes = await postRpc(server.url, "tools/list", {}, rpcHeaders, timeoutMs, 2);
+  toolInfo = parseTools(toolsRes.body);
+  discoveredTools = toolInfo.map((t) => t.name);
 
   if (discoveredTools.length > 0) {
     checks.push(check("tool-discovery", "pass", `Discovered ${discoveredTools.length} tool(s): ${discoveredTools.join(", ")}`));
@@ -259,21 +329,29 @@ export async function probeServer(
   }
 
   // ── T07: Tool invocation ─────────────────────────────────────────────────────
-  const testTool = server.testTool ?? (discoveredTools.length > 0 ? { name: discoveredTools[0], args: {} } : null);
+  // Only call a tool we know is safe to call: the configured testTool, or a tool
+  // that advertises readOnlyHint. Never guess: the first tool could write or delete.
+  const readOnlyTool = toolInfo.find((t) => t.readOnly);
+  const testTool = server.testTool ?? (readOnlyTool ? { name: readOnlyTool.name, args: {} } : null);
   if (testTool) {
-    // Find a read-only tool to invoke — prefer tools with readOnlyHint
     const invokeParams = { name: testTool.name, arguments: testTool.args ?? {} };
-    const invokeRes = await postRpc(server.url, "tools/call", invokeParams, authHeaders, timeoutMs);
+    const invokeRes = await postRpc(server.url, "tools/call", invokeParams, rpcHeaders, timeoutMs, 3);
+    const msg = parseRpc(invokeRes.body);
+    const result = msg?.result as { isError?: boolean; content?: { text?: string }[] } | undefined;
 
-    if (invokeRes.body.includes('"content"') || invokeRes.body.includes('"result"')) {
-      const preview = invokeRes.body.match(/"text":\s*"([^"]{1,80})/)?.[1] ?? "";
-      checks.push(check("tool-invocation", "pass", `Tool "${testTool.name}" invoked successfully`, preview || undefined));
-    } else if (invokeRes.body.includes('"error"')) {
-      const msg = extractJsonField(invokeRes.body, "message");
-      checks.push(check("tool-invocation", "fail", `Tool error: ${msg ?? "unknown"}`));
+    if (msg?.error) {
+      checks.push(check("tool-invocation", "fail", `Tool error: ${msg.error.message ?? "unknown"}`));
+    } else if (result?.isError === true) {
+      const text = result.content?.find((c) => typeof c.text === "string")?.text;
+      checks.push(check("tool-invocation", "fail", `Tool "${testTool.name}" returned an error result`, text?.slice(0, 80)));
+    } else if (result) {
+      const preview = result.content?.find((c) => typeof c.text === "string")?.text?.slice(0, 80);
+      checks.push(check("tool-invocation", "pass", `Tool "${testTool.name}" invoked successfully`, preview));
     } else {
       checks.push(check("tool-invocation", "warn", `Tool "${testTool.name}" returned unexpected shape`));
     }
+  } else if (discoveredTools.length > 0) {
+    checks.push(check("tool-invocation", "skip", "No testTool configured and no tool advertises readOnlyHint — not calling an unknown tool (set testTool to enable)"));
   } else {
     checks.push(check("tool-invocation", "skip", "No tools available to invoke"));
   }
