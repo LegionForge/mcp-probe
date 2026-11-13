@@ -157,13 +157,13 @@ Global flags:
 | Client | Config file |
 |--------|-------------|
 | Claude Desktop App / Cowork / Dispatch | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Claude Code CLI | `~/.claude/settings.json` |
+| Claude Code CLI | `~/.claude.json` (user and per-project scope) or `./.mcp.json` (project scope) |
 | VS Code native MCP (1.99+) | `.vscode/mcp.json` or user `settings.json` |
 | Cursor | `~/.cursor/mcp.json` |
 | Windsurf | `~/.codeium/windsurf/mcp_config.json` |
 | Continue | `~/.continue/config.json` |
 
-> **Important:** Claude Desktop App and Claude Code CLI use different config files. The VS Code extension inherits MCP servers from the Desktop App — not from `settings.json`. If a server is only in `settings.json`, it will be unavailable in VS Code sessions.
+> **Important:** Claude Desktop App and Claude Code CLI use different config files, so a server wired into one is not automatically available in the other.
 
 ---
 

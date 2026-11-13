@@ -101,11 +101,9 @@ export function generateRecommendations(
   }
 
   // ── Dual-config cross-check ───────────────────────────────────────────────
-  // claude_desktop_config.json and ~/.claude/settings.json are read by different
-  // clients. The VSCode extension (including SSH sessions) inherits from
-  // claude_desktop_config.json — NOT from settings.json. A server missing from
-  // the Desktop config is invisible to all VSCode sessions regardless of what's
-  // in settings.json. Always check both files.
+  // Claude Desktop (claude_desktop_config.json) and Claude Code (~/.claude.json,
+  // ./.mcp.json) read separate configs, so a server wired into one is not
+  // automatically available in the other.
   const desktopAudit = auditResults.find((c) => c.clientId === "claude-desktop");
   const codeAudit = auditResults.find((c) => c.clientId === "claude-code");
 
@@ -117,14 +115,13 @@ export function generateRecommendations(
       if (inCode && !inDesktop) {
         recs.push({
           id: id(),
-          severity: "required",
+          severity: "suggested",
           client: "claude-desktop",
           server: server.name,
-          title: `"${server.name}" in settings.json but missing from claude_desktop_config.json`,
+          title: `"${server.name}" in Claude Code config but missing from claude_desktop_config.json`,
           description:
-            `Server is configured for Claude Code CLI (~/.claude/settings.json) but not for Claude Desktop App. ` +
-            `The VSCode extension — including sessions over SSH — sources MCP servers from claude_desktop_config.json only. ` +
-            `Add this server to both files so all client types can reach it.`,
+            `Server is configured for Claude Code CLI but not for Claude Desktop App, which reads its own config file. ` +
+            `Add it to claude_desktop_config.json if you want it available there too.`,
           configSnippet: buildConfigSnippet(server, "claude-desktop", runtimes),
           action: "add-to-config",
           actionLabel: "Add to claude_desktop_config.json",
@@ -137,13 +134,13 @@ export function generateRecommendations(
           severity: "suggested",
           client: "claude-code",
           server: server.name,
-          title: `"${server.name}" in claude_desktop_config.json but missing from settings.json`,
+          title: `"${server.name}" in claude_desktop_config.json but missing from Claude Code config`,
           description:
-            `Server is configured for Claude Desktop App but not for Claude Code CLI (~/.claude/settings.json). ` +
+            `Server is configured for Claude Desktop App but not for Claude Code CLI (~/.claude.json or ./.mcp.json). ` +
             `Terminal Claude Code sessions won't have access to this server.`,
           configSnippet: buildConfigSnippet(server, "claude-code", runtimes),
           action: "add-to-config",
-          actionLabel: "Add to ~/.claude/settings.json",
+          actionLabel: "Add to ~/.claude.json",
         });
       }
     }
@@ -208,7 +205,7 @@ function buildConfigSnippet(
 }`;
 
     case "claude-code":
-      return `// ~/.claude/settings.json
+      return `// ~/.claude.json (user scope) or ./.mcp.json (project scope)
 {
   "mcpServers": {
     ${cliEntry}
