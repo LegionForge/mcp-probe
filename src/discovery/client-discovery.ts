@@ -47,9 +47,9 @@ const CLIENT_DEFS: ClientDef[] = [
       aix: [], android: [], freebsd: [], haiku: [], netbsd: [], openbsd: [], sunos: [], cygwin: [],
     },
     configPath: {
-      darwin: join(home, ".claude", "settings.json"),
-      win32: join(home, ".claude", "settings.json"),
-      linux: join(home, ".claude", "settings.json"),
+      darwin: join(home, ".claude.json"),
+      win32: join(home, ".claude.json"),
+      linux: join(home, ".claude.json"),
       aix: "", android: "", freebsd: "", haiku: "", netbsd: "", openbsd: "", sunos: "", cygwin: "",
     },
   },

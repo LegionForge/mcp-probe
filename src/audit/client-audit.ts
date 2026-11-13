@@ -107,27 +107,37 @@ function auditClaudeDesktop(server: ServerConfig): WiringStatus {
   return { configured, processRunning, logHealthy, issues, suggestions };
 }
 
-function auditClaudeCode(server: ServerConfig): WiringStatus {
+// Claude Code keeps MCP servers in ~/.claude.json (top-level `mcpServers` = user
+// scope, `projects[<cwd>].mcpServers` = local scope) and in ./.mcp.json (project
+// scope). ~/.claude/settings.json does not hold them.
+export function auditClaudeCode(server: ServerConfig, cwd = process.cwd(), home = homedir()): WiringStatus {
   const issues: string[] = [];
   const suggestions: string[] = [];
-  const configPath = join(homedir(), ".claude", "settings.json");
+  const userPath = join(home, ".claude.json");
+  const projectPath = join(cwd, ".mcp.json");
 
-  if (!existsSync(configPath)) {
-    return { configured: false, processRunning: false, logHealthy: null, issues: ["~/.claude/settings.json not found"], suggestions: [] };
+  if (!existsSync(userPath) && !existsSync(projectPath)) {
+    return {
+      configured: false, processRunning: false, logHealthy: null,
+      issues: ["No Claude Code MCP config found (~/.claude.json or ./.mcp.json)"],
+      suggestions: [`Run: claude mcp add --scope user ${server.name} <url> — or add "${server.name}" under mcpServers in ~/.claude.json`],
+    };
   }
 
-  const config = readJsonSafe(configPath);
-  if (!config) {
-    return { configured: false, processRunning: false, logHealthy: null, issues: ["settings.json is invalid JSON"], suggestions: [] };
-  }
+  const user = existsSync(userPath) ? readJsonSafe(userPath) : null;
+  const project = existsSync(projectPath) ? readJsonSafe(projectPath) : null;
+  if (existsSync(userPath) && !user) issues.push("~/.claude.json is invalid JSON");
+  if (existsSync(projectPath) && !project) issues.push("./.mcp.json is invalid JSON");
 
-  const configured = hasMcpServer(config, server.name);
+  const local = (user?.["projects"] as Record<string, Record<string, unknown>> | undefined)?.[cwd];
+  const configured =
+    (user !== null && hasMcpServer(user, server.name)) ||
+    (local !== undefined && hasMcpServer(local, server.name)) ||
+    (project !== null && hasMcpServer(project, server.name));
+
   if (!configured) {
-    issues.push(`Server "${server.name}" not in mcpServers`);
-    suggestions.push(`Add "${server.name}" to ~/.claude/settings.json`);
-    suggestions.push(
-      `Also check claude_desktop_config.json — VSCode extension (including SSH sessions) reads that file, not settings.json`
-    );
+    issues.push(`Server "${server.name}" not in mcpServers (checked user, local and project scope)`);
+    suggestions.push(`Add "${server.name}" under mcpServers in ~/.claude.json (user scope), or in ./.mcp.json (project scope)`);
   }
 
   return { configured, processRunning: false, logHealthy: null, issues, suggestions };
